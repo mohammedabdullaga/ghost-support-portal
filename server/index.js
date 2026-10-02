@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import http from 'node:http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import cors from 'cors';
 import multer from 'multer';
 import { Server } from 'socket.io';
@@ -468,6 +470,18 @@ app.get('/api/chat/:sessionId/messages', requireAuth, async (req, res) => {
     take: 500,
   });
   return res.json({ session, messages });
+});
+
+// ---------------------------------------------------------------------------
+// Production: serve the built React SPA (single-port deploy).
+// Registered after every /api and /uploads route so those win; the fallback
+// regex excludes api/uploads/socket.io so the SPA never swallows API calls.
+// ---------------------------------------------------------------------------
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const CLIENT_DIST = path.resolve(__dirname, '..', 'client', 'dist');
+app.use(express.static(CLIENT_DIST));
+app.get(/^\/(?!api|uploads|socket\.io).*/, (_req, res) => {
+  res.sendFile(path.join(CLIENT_DIST, 'index.html'));
 });
 
 // ---------------------------------------------------------------------------
