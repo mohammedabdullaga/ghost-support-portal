@@ -1,0 +1,62 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  iptvUsername String        @unique
+  role         String        @default("USER") // "USER" | "ADMIN"
+  agentName    String?       // Used for support agent attribution
+  reports      Report[]
+  chatSessions ChatSession[]
+  createdAt    DateTime      @default(now())
+}
+
+model Report {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  category    String           // "LIVE", "VOD", "SUGGESTION", "OTHER"
+  contentType String?          // "MOVIE" | "SERIES" (VOD requests only)
+  assignee    String?          // iptvUsername the ticket is forwarded to (e.g. vodsupport)
+  details     String
+  imageUrl    String?
+  status      String           @default("OPEN") // "OPEN", "RESOLVED"
+  responses   ReportResponse[]
+  createdAt   DateTime         @default(now())
+}
+
+model ReportResponse {
+  id         String   @id @default(uuid())
+  reportId   String
+  report     Report   @relation(fields: [reportId], references: [id])
+  senderName String?  // Support agent display name
+  text       String
+  createdAt  DateTime @default(now())
+}
+
+model ChatSession {
+  id        String        @id @default(uuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  status    String        @default("ACTIVE") // "ACTIVE", "CLOSED"
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model ChatMessage {
+  id            String      @id @default(uuid())
+  chatSessionId String
+  chatSession   ChatSession @relation(fields: [chatSessionId], references: [id])
+  senderRole    String      // "USER" | "ADMIN"
+  senderName    String?     // Displays agent's name on support responses
+  text          String?
+  imageUrl      String?
+  createdAt     DateTime    @default(now())
+}
