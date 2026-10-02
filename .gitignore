@@ -1,6 +1,11 @@
 node_modules/
-.env
 *.log
+
+# Environment files — never commit any of these
+.env
+.env.*
+**/.env
+**/.env.*
 
 # Prisma / SQLite
 server/prisma/dev.db

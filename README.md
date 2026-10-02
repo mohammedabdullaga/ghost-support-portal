@@ -33,7 +33,7 @@ client/
 # 1) Backend
 cd server
 npm install
-copy .env.example .env        # then edit JWT_SECRET + ADMIN_USERNAMES
+# create server/.env (see DEPLOY.md section 3 for the variables)
 npx prisma db push            # creates dev.db from schema
 npm run dev                   # http://localhost:4000
 

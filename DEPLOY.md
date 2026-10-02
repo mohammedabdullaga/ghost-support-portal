@@ -52,8 +52,7 @@ npm install
 npm approve-scripts @prisma/client prisma @prisma/engines 2>/dev/null || true
 npm rebuild @prisma/client prisma @prisma/engines
 
-# Create the production env
-cp .env.example .env
+# Create the production env (variables documented below)
 nano .env
 ```
 
